@@ -1,0 +1,5 @@
+L = float( input("Enter the length of a cubiod "))
+B = float( input( "Enter the bredth of the cubiod"))
+H = float( input("Enter the height of the cubiod"))
+Area = 2 * (L*B+B*H+H*B)
+print("The Total Surface Area = ",int(Area)
