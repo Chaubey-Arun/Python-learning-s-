@@ -1,4 +1,4 @@
-amount= float(input("Enter Amount"))
+amount= float(input("Enter Amount\n"))
 if amount<=1000:
     DisAmount=amount*(10/100)
     
@@ -12,6 +12,6 @@ elif amount>5000 and amount<=10000:
 else:
      DisAmount= amount*(50/100)
 
-Final_Price = amount + DisAmount
+Final_Price = amount - DisAmount
 print("Discount Price",DisAmount)
 print("Final Price",Final_Price)
