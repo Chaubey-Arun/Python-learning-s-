@@ -1,11 +1,17 @@
-No_Number= int(input("Enter No of Number of number's "))
-max =0 
-count=0
-while No_Number>count:
-    n=int(input("Enter Number"))
-    if n>max:
-         max = n
-    else:
-         max = max 
-    count+=1
-print("maximum number", max)
+n= int(input("Enter No of Number of number's "))
+binary =0 
+sum = 0 
+while n>0:
+    r = n%2 
+    n=n//2
+    sum= sum*10 + r 
+
+while sum>0:
+     d = sum%10
+     sum=sum //10
+    
+     binary= binary*10 + d
+
+print("Binary Number is ",binary)
+
+
