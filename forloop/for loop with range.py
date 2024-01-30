@@ -1,2 +1,2 @@
-for z in range(-10,0,5):
+for z in range(-10,0,2):
     print(z)
