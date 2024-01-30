@@ -4,6 +4,6 @@ count=0
 while No_Number-1 >count:
     n=int(input("Enter Number"))
     if n>max:
-        n=max
+        max=n
     count+=1
 print("maximum number", max)
