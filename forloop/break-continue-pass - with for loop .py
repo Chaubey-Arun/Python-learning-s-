@@ -3,3 +3,5 @@ for i in range(0,9):
         break;
     else :
         print(i)
+else:
+    print("For completed properly")
