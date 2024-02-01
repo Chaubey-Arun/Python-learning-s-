@@ -1,3 +1,4 @@
 for i in range(0,9):
-       pass
-print("progaram ended ")
+    if i %5 == 0:
+      continue  
+    print(i)
