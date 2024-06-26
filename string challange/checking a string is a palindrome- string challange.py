@@ -1,4 +1,4 @@
-#convert a given string to palindrome 
+1#convert a given string to palindrome 
 str1= input('Enter to check Palindrome -')
 n=len(str1)
 str2 = str1[::-1]
