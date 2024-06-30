@@ -1,36 +1,27 @@
-# # Find the Birthday of the Person 
+from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 
-# Name = input('Enter The name of Person \n')
-# dict1 = {'Arun':'21/11/1995' 
-#          , 'karan' : '33/2/2993'
-#         ,'saktiman': '34/3/3333' }          
-
-# if Name in dict1:
-#     print ('Mr./Mrs {} is born on {}' .format(Name,dict1[Name])
-#         )
-# else:
-#     print('Mr/Mrs .{} is not Found'.format(Name))
-
-# ---------------------------------------------------------------------------
-# Challenge : Finding Meanings in Dictionary
-
-# dict1 ={
-# 'piece' : 'senetence which makes wonders'
-# ,'parch': 'a piece of cloth or other material used to mend or surengthen a tom or weak poin'
-# ,'area' : 'a region or part of a town, a country, or the world'
-# ,'visit': 'go to see aed spend time with(someone)' 
-# }
-# key= list(dict1.keys())
-# value = list(dict1.values())
-# lent= [len(x) for x in value]
-# max_value= max(lent)
-# min_value= min(lent)
-
-# max_index = lent.index(max_value)
-# min_index = lent.index(min_value)
-
-# print('max_key_value :::' ,key[max_index],value[max_index])
-print('Min key-vlaue:::',key[min_index],value[min_index])
+def check_chromedriver():
+    chrome_driver_path = r'C:\path\to\chromedriver.exe'  # Update with your Chromedriver path
     
+    try:
+        # Configure Chrome options if needed
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless")  # Optional: Run in headless mode
 
+        # Initialize Chrome WebDriver
+        driver = webdriver.Chrome(options=chrome_options, executable_path=chrome_driver_path)
+        
+        # Example usage: Open a website and print page title
+        driver.get('https://www.example.com')
+        print(f"Page title: {driver.title}")
+        
+        # Close the WebDriver session
+        driver.quit()
+        
+        print("Chromedriver check successful.")
+    except WebDriverException as e:
+        print(f"Error initializing Chromedriver: {e}")
 
+if __name__ == "__main__":
+    check_chromedriver()
