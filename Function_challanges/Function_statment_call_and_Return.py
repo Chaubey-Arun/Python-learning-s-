@@ -1,176 +1,143 @@
-import requests
-import random
+# from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
+from db.mongo_db import create_connection, insert_many, insert_one
+from scrapers import nykaa_scraper, pepejeans_scraper, Levis_scraper, ajio_scraper, tata_cliq_scraper, forever21,pull_and_bear
 import json
+import schedule
 import time
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from bs4 import BeautifulSoup
-import csv
 import os
+from repositories.scraping_session import ScrapeSessionBuilder, add_scraping_session, mark_job_completed, mark_session_completed
+import uuid
 
-# Read URLs from the JSON file
-with open('C:\\Users\\chaub\\python files project\\Project1\\HandsonProject1.json', 'r') as file:
-    web_url = json.load(file)
-
-# Extract the list of URLs
-links = web_url['url']
-
-# List of user-agent headers
-user_agents = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+# URL pattern of the page to scrape
+# List of dictionaries containing URLs, scraper functions, and store functions
+NUMBER_PRODUCTS_TO_SCRAPE = 100
+jobs = [
+   {
+       "job_id":str(uuid.uuid4()),
+       "entity_name":'men-shirts',
+       "max_count":NUMBER_PRODUCTS_TO_SCRAPE,
+       "url": "https://levi.in/collections/men-shirts",
+       "scrape": Levis_scraper.scrape_product_details,
+       "store": insert_many,
+       "collection":create_connection(collection="ScrapedProducts"),
+   }
+   ,
+   {
+       "job_id":str(uuid.uuid4()),
+       "entity_name":'casual-shirt',
+       "max_count":NUMBER_PRODUCTS_TO_SCRAPE,
+       "url": "https://www.nykaafashion.com/men/topwear/casual-shirts/c/6826?root=nav_3&ptype=listing%2Cmen%2Ctopwear%2Ccasual-shirts%2C5%2Ccasual-shirts",
+       "scrape": nykaa_scraper.scrape_products,
+       "store": insert_many,
+       "collection":create_connection(collection="ScrapedProducts"),
+   }
+   ,
+   {
+       "job_id":str(uuid.uuid4()),
+       "entity_name":'shirts',
+       "max_count":NUMBER_PRODUCTS_TO_SCRAPE,
+       "url": "https://www.pepejeans.in/men/clothing/shirts",
+       "scrape": pepejeans_scraper.scrape_pepejeans_products,
+       "store": insert_many,
+       "collection":create_connection(collection="ScrapedProducts"),
+   }
+   ,
+   {
+       "job_id":str(uuid.uuid4()),
+       "entity_name":'men-shirts',
+       "max_count":NUMBER_PRODUCTS_TO_SCRAPE,
+       "url": "https://www.ajio.com/men-shirts/c/830216013",
+       "scrape": ajio_scraper.scrape_product_details,
+       "store": insert_many,
+       "collection":create_connection(collection="ScrapedProducts"),
+   },
+   {
+       "job_id":str(uuid.uuid4()),
+       "entity_name":'men-shirts',
+       "max_count":NUMBER_PRODUCTS_TO_SCRAPE,
+       "url": "https://forever21.abfrl.in/c/men-checked-shirts",
+       "scrape": forever21.scrape_forever21_products,
+       "store": insert_many,
+       "collection":create_connection(collection="ScrapedProducts"),
+   },
+   {
+       "job_id":str(uuid.uuid4()),
+       "entity_name":'men-shirts',
+       "max_count":NUMBER_PRODUCTS_TO_SCRAPE,
+       "url": "https://www.pullandbear.com/es/hombre/ropa/camisetas-n6323",
+       "scrape": pull_and_bear.scrape_pull_and_bear_products,
+       "store": insert_many,
+       "collection":create_connection(collection="ScrapedProducts"),
+   }
+   # ,
+   # {
+   #     "job_id":str(uuid.uuid4()),
+   #     "entity_name":'men-shirts',
+   #     "max_count":NUMBER_PRODUCTS_TO_SCRAPE,
+   #     "url": "https://www.tatacliq.com/search/?searchCategory=all&text=shirts%20for%20men",
+   #     "scrape": tata_cliq_scraper.scrape_product_details,
+   #     "store": insert_many,
+   #     "collection":create_connection(collection="ScrapedProducts"),
+   # }
+   # Add more tasks as needed
 ]
 
-# Initialize list to store reviews
-all_reviews = []
 
-def fetch_url(url, retries=3):
-    for attempt in range(retries):
-        try:
-            # Select a random user-agent header
-            header = {
-                "user-agent": random.choice(user_agents)
-            }
-            
-            # Make request to the URL
-            response = requests.get(url, headers=header)
-            response.raise_for_status()  # Raise an error for bad status codes
-            return response
-        except requests.RequestException as e:
-            print(f"Attempt {attempt + 1} failed for {url}: {e}")
-            if attempt + 1 == retries:
-                raise
-            time.sleep(random.uniform(2.5, 4.5))  # Adjust the pause time between retries
+def job1():
+   for i in range(1, 10):
+       print(f"{i} cron ki testing kr rha hoon bhai!")
+      
 
-def fetch_url_with_selenium(url):
-    options = Options()
-    options.add_argument("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36")
-    options.add_argument("--window-size=1920,1200")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-features=IsolateOrigins,site-per-process")
-    options.add_argument("--blink-settings=imagesEnabled=true")
+def job():
+   print("job kr rah hoon bhai!")
+   builder = ScrapeSessionBuilder()
     
-    # Specify the correct path to chromedriver
-    service = Service(executable_path='C:/Users/chaub/python files project/venv/chromedriver-win64/chromedriver.exe')  # Adjust path to chromedriver
+   for job in jobs:
+    builder.add_job({
+        "job_id": job["job_id"],
+        "entity_name": job["entity_name"],
+        "max_count": job["max_count"],
+        "url": job["url"],
+    })
+   scraping_session = builder.build();
 
-    driver = webdriver.Chrome(service=service, options=options)
-    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-    driver.get(url)
+#    print(f"{json.dumps(scraping_session,indent=4)}")
+   session_ki_db_id = add_scraping_session(scraping_session_data=scraping_session)
+   scrape_Session_id = scraping_session["label"]
+   scraping_session["_id"] = session_ki_db_id
+   
+   for scraping_job in jobs:
+        if scraping_job["collection"] is not None:
+           data = scraping_job["scrape"](url=scraping_job["url"], max_count=scraping_job["max_count"],job_id=scraping_job.get("job_id"))
+           for _ in data:
+            _['scrape_session_id'] = scrape_Session_id
+           print(f"({scraping_job["job_id"]})[{data[0]["source"]["website_name"] if len(data)>0 else ""}-{scraping_job["entity_name"]}]: {json.dumps(len(data), indent=4)}")
+           
+           if len(data) > 0:
+            scraping_job["store"](collection=scraping_job["collection"], data=data);
+           
+           if len(data) == scraping_job["max_count"]:
+            result = mark_job_completed(scrape_session_id=session_ki_db_id, job_id=scraping_job["job_id"])
+   
+   mark_session_completed(scrape_session_id=session_ki_db_id)
+
+
+# Main function
+def main():
+
+    SCRAPE_SCHEDULE = os.environ.get('SCRAPE_SCHEDULE', '10:30')
+    SCRAPE_SCHEDULE1 = os.environ.get('SCRAPE_SCHEDULE1', 30)
+    print(f"{SCRAPE_SCHEDULE} == {SCRAPE_SCHEDULE1}")
+
+    schedule.every().day.at(SCRAPE_SCHEDULE).do(job)
     
-    try:
-        # Wait until a certain element is loaded (adjust the locator to your needs)
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
-        page_source = driver.page_source
-    finally:
-        driver.quit()
+    # schedule.every(2).seconds.do(job)
+    schedule.every(int(SCRAPE_SCHEDULE1)).seconds.do(job1)
 
-    return page_source
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
-# Loop through each URL and scrape reviews
-for link in links:
-    print(f"Scraping reviews from: {link}\n")
 
-    try:
-        if "meesho.com" in link:
-            response_text = fetch_url_with_selenium(link)
-        else:
-            response = fetch_url(link)
-            response_text = response.text
-    except requests.RequestException as e:
-        print(f"Failed to fetch {link}: {e}")
-        continue
-
-    # Parse HTML
-    soup = BeautifulSoup(response_text, 'html.parser')
-
-    # Check the domain to apply the appropriate parsing logic
-    if "amazon.in" in link:
-        for index, review_section in enumerate(soup.find_all('div', {'data-hook': 'review'}), start=1):
-            start_rating = review_section.find('i', {'data-hook': 'review-star-rating'})
-            start_rating_text = start_rating.text.strip() if start_rating else 'No rating'
-
-            time_and_place = review_section.find('span', {'data-hook': 'review-date'})
-            time_and_place_text = time_and_place.text.strip() if time_and_place else 'No date'
-
-            review = review_section.find('span', {'data-hook': 'review-body'})
-            review_text = review.text.strip() if review else 'No review'
-
-            all_reviews.append({
-                'URL': link,
-                'Index': index,
-                'Rating': start_rating_text,
-                'Time and Place': time_and_place_text,
-                'Review': review_text
-            })
-            print('Review Number:', index)
-            print('Rating:', start_rating_text)
-            print('Time and Place:', time_and_place_text)
-            print('Review:', review_text)
-            print()
-            
-    elif "flipkart.com" in link:
-        for index, review_section in enumerate(soup.find_all('div', {'class': 'cPHDOP col-12-12'}), start=1):
-            start_rating = review_section.find('div', {'class': 'XQDdHH Ga3i8K'})
-            start_rating_text = start_rating.text.strip() if start_rating else 'No rating'
-
-            time_and_place = review_section.find('p', {'class': '_2NsDsF'})
-            time_and_place_text = time_and_place.text.strip() if time_and_place else 'No date'
-
-            review = review_section.find('div', {'class': 'row'})
-            review_text = review.div.div.text.strip() if review else 'No review'
-
-            all_reviews.append({
-                'URL': link,
-                'Index': index,
-                'Rating': start_rating_text,
-                'Time and Place': time_and_place_text,
-                'Review': review_text
-            })
-            print('Review Number:', index)
-            print('Rating:', start_rating_text)
-            print('Time and Place:', time_and_place_text)
-            print('Review:', review_text)
-            print()
-    
-    elif "meesho.com" in link:
-        for index, review_section in enumerate(soup.find_all('div', {'class': 'sc-bqWxrE hupGZf RatingReviewDrawer__StyledCard-sc-y5ksev-1 eyMVSu RatingReviewDrawer__StyledCard-sc-y5ksev-1 eyMVSu'}), start=1):
-            start_rating = review_section.find('span', {'class': 'sc-iJnaPW fGVEwV'})
-            start_rating_text = start_rating.text.strip() if start_rating else 'No rating'
-
-            time_and_place = review_section.find('span', {'class': 'sc-eDvSVe XndEO'})
-            time_and_place_text = time_and_place.text.strip() if time_and_place else 'No date'
-
-            review = review_section.find('p', {'class': 'sc-eDvSVe gUjMRV Comment__CommentText-sc-1ju5q0e-3 cfdxfJ Comment__CommentText-sc-1ju5q0e-3 cfdxfJ'})
-            review_text = review.text.strip() if review else 'No review'
-
-            all_reviews.append({
-                'URL': link,
-                'Index': index,
-                'Rating': start_rating_text,
-                'Time and Place': time_and_place_text,
-                'Review': review_text
-            })
-            print('Review Number:', index)
-            print('Rating:', start_rating_text)
-            print('Time and Place:', time_and_place_text)
-            print('Review:', review_text)
-            print()
-
-# Save reviews to a CSV file
-output_file = 'C:\\Users\\chaub\\python files project\\Project1\\reviews.csv'
-output_columns = ['URL', 'Index', 'Rating', 'Time and Place', 'Review']
-
-try:
-    with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=output_columns)
-        writer.writeheader()
-        writer.writerows(all_reviews)
-    print(f"All reviews saved to {output_file}.")
-except IOError as e:
-    print(f"Failed to save reviews to {output_file}: {e}")
